@@ -89,12 +89,14 @@ Entry.BigwaveRoboticsBase =
         {
             case 'Start': 
                 {
+                    console.log(jsonBody);
+
                     // 전송
-                    Entry.hw.sendQueue.json = jsonBody;
+                    Entry.hw.sendQueue.jsonBody = jsonBody;
             
                     Entry.hw.update();
             
-                    delete Entry.hw.sendQueue.json;
+                    delete Entry.hw.sendQueue.jsonBody;
                 }
                 return script;
 

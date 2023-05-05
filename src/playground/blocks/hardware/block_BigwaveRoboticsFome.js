@@ -27,8 +27,10 @@ Entry.BigwaveRoboticsFome =
         // 한 번에 명령을 전송하면 hw까지 제대로 전달되지 않는 경우가 있어
         // 명령을 각각 분리하여 전송하게 함(2017.01.03)
         for (let i = 0; i < 1; i++) {
+            /*
             const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "STOP" } };
             Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+            // */
         }
     },
 };
@@ -147,7 +149,7 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
                 type: 'BigwaveRoboticsFomeStop',
             },
             paramsKeyMap: {},
-            class: 'control_flight',
+            class: 'command_stop',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "STOP" } };
@@ -170,13 +172,13 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             ],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [{ type: 'number', params: ['1'] }, null],
                 type: 'BigwaveRoboticsFomeMoveForward',
             },
             paramsKeyMap: {
                 VALUE: 0,
             },
-            class: 'control_quad',
+            class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -200,13 +202,13 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             ],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [{ type: 'number', params: ['1'] }, null],
                 type: 'BigwaveRoboticsFomeMoveBack',
             },
             paramsKeyMap: {
                 VALUE: 0,
             },
-            class: 'control_quad',
+            class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -230,13 +232,13 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             ],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [{ type: 'number', params: ['90'] }, null],
                 type: 'BigwaveRoboticsFomeTurnLeft',
             },
             paramsKeyMap: {
                 VALUE: 0,
             },
-            class: 'control_quad',
+            class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -260,13 +262,13 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             ],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [{ type: 'number', params: ['90'] }, null],
                 type: 'BigwaveRoboticsFomeTurnRight',
             },
             paramsKeyMap: {
                 VALUE: 0,
             },
-            class: 'control_quad',
+            class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -284,19 +286,14 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [
-                { type: 'Block', accept: 'string' },
-                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
-            ],
+            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [null],
                 type: 'BigwaveRoboticsFomeHeadUp',
             },
-            paramsKeyMap: {
-                VALUE: 0,
-            },
-            class: 'control_quad',
+            paramsKeyMap: {},
+            class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -314,19 +311,14 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [
-                { type: 'Block', accept: 'string' },
-                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
-            ],
+            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [null],
                 type: 'BigwaveRoboticsFomeHeadForward',
             },
-            paramsKeyMap: {
-                VALUE: 0,
-            },
-            class: 'control_quad',
+            paramsKeyMap: {},
+            class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
@@ -344,19 +336,14 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [
-                { type: 'Block', accept: 'string' },
-                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
-            ],
+            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
             events: {},
             def: {
-                params: [null, { type: 'number', params: ['0'] }, null],
+                params: [null],
                 type: 'BigwaveRoboticsFomeHeadDown',
             },
-            paramsKeyMap: {
-                VALUE: 0,
-            },
-            class: 'control_quad',
+            paramsKeyMap: {},
+            class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {0
                 const value = script.getNumberValue('VALUE');
