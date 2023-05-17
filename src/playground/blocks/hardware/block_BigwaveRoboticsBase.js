@@ -1,7 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable brace-style */
-/* eslint-disable max-len */
-/* jshint esversion: 6 */
 'use strict';
 
 
@@ -9,23 +5,21 @@
  *  장치 기본 정의
  ***************************************************************************************/
 
-Entry.BigwaveRoboticsBase = 
+Entry.BigwaveRoboticsBase =
 {
     /***************************************************************************************
      *  시간 지연 함수
      ***************************************************************************************/
 
     // 시간 지연
-    checkFinish(script, ms)
-    {
+    checkFinish(script, ms) {
         const _ms = this.fit(0, ms, 60000);
 
-        if (!script.isStart)
-        {
-            script.isStart  = true;
+        if (!script.isStart) {
+            script.isStart = true;
             script.timeFlag = 1;
 
-            const fps       = Entry.FPS || 60;
+            const fps = Entry.FPS || 60;
             const timeValue = (60 / fps) * _ms;
 
             setTimeout(() => {
@@ -34,12 +28,10 @@ Entry.BigwaveRoboticsBase =
 
             return 'Start';
         }
-        else if (script.timeFlag == 1)
-        {
+        else if (script.timeFlag == 1) {
             return 'Running';
         }
-        else
-        {
+        else {
             delete script.timeFlag;
             delete script.isStart;
             Entry.engine.isContinue = false;
@@ -52,16 +44,14 @@ Entry.BigwaveRoboticsBase =
      *  기능 함수
      ***************************************************************************************/
 
-    transferBufferClear()
-    {
+    transferBufferClear() {
         Entry.hw.sendQueue.bufferClear = 0;
         Entry.hw.update();
         delete Entry.hw.sendQueue.buffer_clear;
     },
 
 
-    fit(min, value, max)
-    {
+    fit(min, value, max) {
         return Math.max(Math.min(value, max), min);
     },
 
@@ -71,8 +61,7 @@ Entry.BigwaveRoboticsBase =
      ***************************************************************************************/
 
     // 데이터 읽기
-    getData(device)
-    {
+    getData(device) {
         return Entry.hw.portData[device];
     },
 
@@ -83,30 +72,28 @@ Entry.BigwaveRoboticsBase =
      ***************************************************************************************/
 
     // -- Message -----------------------------------------------------------------------------
-    sendJson(script, jsonBody, timeDelay = 32)
-    {
-        switch (this.checkFinish(script, timeDelay))
-        {
-            case 'Start': 
+    sendJson(script, jsonBody, timeDelay = 32) {
+        switch (this.checkFinish(script, timeDelay)) {
+            case 'Start':
                 {
                     console.log(jsonBody);
 
                     // 전송
                     Entry.hw.sendQueue.jsonBody = jsonBody;
-            
+
                     Entry.hw.update();
-            
+
                     delete Entry.hw.sendQueue.jsonBody;
                 }
                 return script;
 
-            case 'Running': 
+            case 'Running':
                 return script;
 
-            case 'Finish': 
+            case 'Finish':
                 return script.callReturn();
 
-            default: 
+            default:
                 return script.callReturn();
         }
     }

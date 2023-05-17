@@ -1,7 +1,3 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable brace-style */
-/* eslint-disable max-len */
-/* jshint esversion: 6 */
 'use strict';
 
 /***************************************************************************************
@@ -45,7 +41,8 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             // ko.js에 작성하던 내용
             Blocks: {
                 // 정보창
-                monitorRemainDataToTransfer: '전송 예정 데이터',
+                monitorSensor1: '센서1',
+                monitorSensor2: '센서2',
 
                 // 일반 블럭
                 commonForward: '전진',
@@ -72,7 +69,8 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             // ko.js에 작성하던 내용
             Blocks: {
                 // 정보창
-                monitorRemainDataToTransfer: '전송 예정 데이터',
+                monitorSensor1: 'Sensor 1',
+                monitorSensor2: 'Sensor 2',
 
                 // 일반 블럭
                 commonForward: 'Go Forward',
@@ -80,14 +78,14 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             },
 
             template: {
-                BigwaveRoboticsFomeStop: '제자리에 멈추기 %1',
-                BigwaveRoboticsFomeMoveForward: '앞으로 %1 만큼 움직이기 %2',
-                BigwaveRoboticsFomeMoveBack: '뒤로 %1 만큼 움직이기 %2',
-                BigwaveRoboticsFomeTurnLeft: '왼쪽으로 %1 만큼 회전하기 %2',
-                BigwaveRoboticsFomeTurnRight: '오른쪽으로 %1 만큼 회전하기 %2',
-                BigwaveRoboticsFomeHeadUp: '머리 들기 %1',
-                BigwaveRoboticsFomeHeadForward: '머리 앞으로 %1',
-                BigwaveRoboticsFomeHeadDown: '머리 아래로 %1',
+                BigwaveRoboticsFomeStop: 'Stop %1',
+                BigwaveRoboticsFomeMoveForward: 'Go forward %1 %2',
+                BigwaveRoboticsFomeMoveBack: 'Go backward %1 %2',
+                BigwaveRoboticsFomeTurnLeft: 'Turn left to %1 degree %2',
+                BigwaveRoboticsFomeTurnRight: 'Turn right to %1 degree %2',
+                BigwaveRoboticsFomeHeadUp: 'Head up %1',
+                BigwaveRoboticsFomeHeadForward: 'Head forward %1',
+                BigwaveRoboticsFomeHeadDown: 'Head down %1',
             },
 
             Helper: {
@@ -107,7 +105,10 @@ Entry.BigwaveRoboticsFome.monitorTemplate = function () {
         height: 500,    // 이미지의 높이
 
         // 모니터 화면 상단에 차례대로 나열하는 값
-        listPorts: {},
+        listPorts: {
+            sensor1: { name: Lang.Blocks.monitorSensor1, type: 'input', pos: { x: 0, y: 0 } },
+            sensor2: { name: Lang.Blocks.monitorSensor2, type: 'input', pos: { x: 0, y: 0 } },
+        },
 
         // 모니터 화면 지정 위치와 선으로 연결하여 표시하는 값
         ports: {},
@@ -121,6 +122,7 @@ Entry.BigwaveRoboticsFome.monitorTemplate = function () {
  *  엔트리에 등록할 블록들의 블록명(다른 장치의 블록 이름과 달라야 함)
  ***************************************************************************************/
 Entry.BigwaveRoboticsFome.blockMenuBlocks = [
+    'BigwaveRoboticsFomeSensor',
     'BigwaveRoboticsFomeStop',
     'BigwaveRoboticsFomeMoveForward',
     'BigwaveRoboticsFomeMoveBack',
@@ -137,6 +139,39 @@ Entry.BigwaveRoboticsFome.blockMenuBlocks = [
  ***************************************************************************************/
 Entry.BigwaveRoboticsFome.getBlocks = function () {
     return {
+        BigwaveRoboticsFomeSensor: {
+            color: EntryStatic.colorSet.block.default.HARDWARE,
+            outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
+            skeleton: 'basic_string_field',
+            statements: [],
+            params: [
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.monitorSensor1, 'sensor1'],
+                        [Lang.Blocks.monitorSensor2, 'sensor2'],
+                    ],
+                    value: 'sensor1',                            // 초기 선택항목 지정
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
+            ],
+            events: {},
+            def: {
+                params: [null],
+                type: 'BigwaveRoboticsFomeSensor',
+            },
+            paramsKeyMap: {
+                SENSOR: 0,
+            },
+            class: 'sensor',             // 같은 이름인 객체들이 그룹으로 형성됨
+            isNotFor: ['BigwaveRoboticsFome'],
+            func(sprite, script) {
+                return Entry.hw.portData[script.getField('SENSOR')];
+            },
+        },
+
         BigwaveRoboticsFomeStop: {
             color: EntryStatic.colorSet.block.default.HARDWARE,
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
@@ -180,7 +215,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             },
             class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "MOVE_FORWARD", "distance": value } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -210,7 +246,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             },
             class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "MOVE_BACK", "distance": value } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -240,7 +277,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             },
             class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "TURN_LEFT", "angle": value } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -270,7 +308,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             },
             class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "TURN_RIGHT", "angle": value } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -295,7 +334,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             paramsKeyMap: {},
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_UP" } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -320,7 +360,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             paramsKeyMap: {},
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_FORWARD" } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
@@ -345,7 +386,8 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             paramsKeyMap: {},
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
-            func(sprite, script) {0
+            func(sprite, script) {
+                0
                 const value = script.getNumberValue('VALUE');
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_DOWN" } };
                 return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
