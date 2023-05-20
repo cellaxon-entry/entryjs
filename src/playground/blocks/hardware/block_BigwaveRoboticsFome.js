@@ -50,6 +50,7 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             },
 
             template: {
+                BigwaveRoboticsFomeSensor: '%1',
                 BigwaveRoboticsFomeStop: '제자리에 멈추기 %1',
                 BigwaveRoboticsFomeMoveForward: '앞으로 %1 만큼 움직이기 %2',
                 BigwaveRoboticsFomeMoveBack: '뒤로 %1 만큼 움직이기 %2',
@@ -142,6 +143,7 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
         BigwaveRoboticsFomeSensor: {
             color: EntryStatic.colorSet.block.default.HARDWARE,
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
+            fontColor : '#fff',
             skeleton: 'basic_string_field',
             statements: [],
             params: [
@@ -168,8 +170,11 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             class: 'sensor',             // 같은 이름인 객체들이 그룹으로 형성됨
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                return Entry.hw.portData[script.getField('SENSOR')];
+                const read = Entry.hw.portData;
+                const name = script.getField('SENSOR');
+                return read[name];
             },
+            syntax: { js: [], py: [] },
         },
 
         BigwaveRoboticsFomeStop: {
