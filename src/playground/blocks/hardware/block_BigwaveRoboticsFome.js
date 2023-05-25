@@ -17,9 +17,6 @@ Entry.BigwaveRoboticsFome =
 
     // 엔트리 정지시 하드웨어 초기화 로직
     setZero() {
-        // 초기화
-        Entry.BigwaveRoboticsBase.transferBufferClear();
-
         // 한 번에 명령을 전송하면 hw까지 제대로 전달되지 않는 경우가 있어
         // 명령을 각각 분리하여 전송하게 함(2017.01.03)
         for (let i = 0; i < 1; i++) {
@@ -41,24 +38,27 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             // ko.js에 작성하던 내용
             Blocks: {
                 // 정보창
+                monitorMotion: '동작',
                 monitorSensor1: '센서1',
                 monitorSensor2: '센서2',
 
                 // 일반 블럭
                 commonForward: '전진',
                 commonBack: '후진',
+                commonSync: '동기',
+                commonAsync: '비동기',
             },
 
             template: {
                 BigwaveRoboticsFomeSensor: '%1',
                 BigwaveRoboticsFomeStop: '제자리에 멈추기 %1',
-                BigwaveRoboticsFomeMoveForward: '앞으로 %1 만큼 움직이기 %2',
-                BigwaveRoboticsFomeMoveBack: '뒤로 %1 만큼 움직이기 %2',
-                BigwaveRoboticsFomeTurnLeft: '왼쪽으로 %1 만큼 회전하기 %2',
-                BigwaveRoboticsFomeTurnRight: '오른쪽으로 %1 만큼 회전하기 %2',
-                BigwaveRoboticsFomeHeadUp: '머리 들기 %1',
-                BigwaveRoboticsFomeHeadForward: '머리 앞으로 %1',
-                BigwaveRoboticsFomeHeadDown: '머리 아래로 %1',
+                BigwaveRoboticsFomeMoveForward: '앞으로 %1 만큼 움직이기 %2 %3',
+                BigwaveRoboticsFomeMoveBack: '뒤로 %1 만큼 움직이기 %2 %3',
+                BigwaveRoboticsFomeTurnLeft: '왼쪽으로 %1 만큼 회전하기 %2 %3',
+                BigwaveRoboticsFomeTurnRight: '오른쪽으로 %1 만큼 회전하기 %2 %3',
+                BigwaveRoboticsFomeHeadUp: '머리 들기 %1 %2',
+                BigwaveRoboticsFomeHeadForward: '머리 앞으로 %1 %2',
+                BigwaveRoboticsFomeHeadDown: '머리 아래로 %1 %2',
             },
 
             Helper: {
@@ -70,23 +70,26 @@ Entry.BigwaveRoboticsFome.setLanguage = function () {
             // ko.js에 작성하던 내용
             Blocks: {
                 // 정보창
+                monitorMotion: 'Motion',
                 monitorSensor1: 'Sensor 1',
                 monitorSensor2: 'Sensor 2',
 
                 // 일반 블럭
                 commonForward: 'Go Forward',
                 commonBack: 'Go Back',
+                commonSync: 'Synchronous',
+                commonAsync: 'Asynchronous',
             },
 
             template: {
                 BigwaveRoboticsFomeStop: 'Stop %1',
-                BigwaveRoboticsFomeMoveForward: 'Go forward %1 %2',
-                BigwaveRoboticsFomeMoveBack: 'Go backward %1 %2',
-                BigwaveRoboticsFomeTurnLeft: 'Turn left to %1 degree %2',
-                BigwaveRoboticsFomeTurnRight: 'Turn right to %1 degree %2',
-                BigwaveRoboticsFomeHeadUp: 'Head up %1',
-                BigwaveRoboticsFomeHeadForward: 'Head forward %1',
-                BigwaveRoboticsFomeHeadDown: 'Head down %1',
+                BigwaveRoboticsFomeMoveForward: 'Go forward %1 %2 %3',
+                BigwaveRoboticsFomeMoveBack: 'Go backward %1 %2 %3',
+                BigwaveRoboticsFomeTurnLeft: 'Turn left to %1 degree %2 %3',
+                BigwaveRoboticsFomeTurnRight: 'Turn right to %1 degree %2 %3',
+                BigwaveRoboticsFomeHeadUp: 'Head up %1 %2',
+                BigwaveRoboticsFomeHeadForward: 'Head forward %1 %2',
+                BigwaveRoboticsFomeHeadDown: 'Head down %1 %2',
             },
 
             Helper: {
@@ -107,6 +110,7 @@ Entry.BigwaveRoboticsFome.monitorTemplate = function () {
 
         // 모니터 화면 상단에 차례대로 나열하는 값
         listPorts: {
+            motion: { name: Lang.Blocks.monitorMotion, type: 'input', pos: { x: 0, y: 0 } },
             sensor1: { name: Lang.Blocks.monitorSensor1, type: 'input', pos: { x: 0, y: 0 } },
             sensor2: { name: Lang.Blocks.monitorSensor2, type: 'input', pos: { x: 0, y: 0 } },
         },
@@ -143,7 +147,7 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
         BigwaveRoboticsFomeSensor: {
             color: EntryStatic.colorSet.block.default.HARDWARE,
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
-            fontColor : '#fff',
+            fontColor: '#fff',
             skeleton: 'basic_string_field',
             statements: [],
             params: [
@@ -208,23 +212,39 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             statements: [],
             params: [
                 { type: 'Block', accept: 'string' },
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
                 { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
             ],
             events: {},
             def: {
-                params: [{ type: 'number', params: ['1'] }, null],
+                params: [
+                    { type: 'number', params: ['1'] },
+                    null,
+                    null
+                ],
                 type: 'BigwaveRoboticsFomeMoveForward',
             },
             paramsKeyMap: {
                 VALUE: 0,
+                SYNC: 1
             },
             class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
                 const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "MOVE_FORWARD", "distance": value } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -239,23 +259,39 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             statements: [],
             params: [
                 { type: 'Block', accept: 'string' },
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
                 { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
             ],
             events: {},
             def: {
-                params: [{ type: 'number', params: ['1'] }, null],
+                params: [
+                    { type: 'number', params: ['1'] },
+                    null,
+                    null
+                ],
                 type: 'BigwaveRoboticsFomeMoveBack',
             },
             paramsKeyMap: {
                 VALUE: 0,
+                SYNC: 1
             },
             class: 'command_move',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
                 const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "MOVE_BACK", "distance": value } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -270,23 +306,39 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             statements: [],
             params: [
                 { type: 'Block', accept: 'string' },
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
                 { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
             ],
             events: {},
             def: {
-                params: [{ type: 'number', params: ['90'] }, null],
+                params: [
+                    { type: 'number', params: ['90'] },
+                    null,
+                    null
+                ],
                 type: 'BigwaveRoboticsFomeTurnLeft',
             },
             paramsKeyMap: {
                 VALUE: 0,
+                SYNC: 1
             },
             class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
                 const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "TURN_LEFT", "angle": value } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -301,23 +353,39 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             statements: [],
             params: [
                 { type: 'Block', accept: 'string' },
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
                 { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 },
             ],
             events: {},
             def: {
-                params: [{ type: 'number', params: ['90'] }, null],
+                params: [
+                    { type: 'number', params: ['90'] },
+                    null,
+                    null
+                ],
                 type: 'BigwaveRoboticsFomeTurnRight',
             },
             paramsKeyMap: {
                 VALUE: 0,
+                SYNC: 1
             },
             class: 'command_turn',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
                 const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "TURN_RIGHT", "angle": value } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -330,20 +398,34 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
+            params: [
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
+                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }
+            ],
             events: {},
             def: {
-                params: [null],
+                params: [null, null],
                 type: 'BigwaveRoboticsFomeHeadUp',
             },
-            paramsKeyMap: {},
+            paramsKeyMap: {
+                SYNC: 0
+            },
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
-                const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_UP" } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -356,20 +438,34 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
+            params: [
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
+                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }
+            ],
             events: {},
             def: {
-                params: [null],
+                params: [null, null],
                 type: 'BigwaveRoboticsFomeHeadForward',
             },
-            paramsKeyMap: {},
+            paramsKeyMap: {
+                SYNC: 0
+            },
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
-                const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_FORWARD" } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],
@@ -382,20 +478,34 @@ Entry.BigwaveRoboticsFome.getBlocks = function () {
             outerLine: EntryStatic.colorSet.block.darken.HARDWARE,
             skeleton: 'basic',
             statements: [],
-            params: [{ type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }],
+            params: [
+                {
+                    type: 'Dropdown',
+                    options: [
+                        [Lang.Blocks.commonSync, '1'],
+                        [Lang.Blocks.commonAsync, '0'],
+                    ],
+                    value: '1',
+                    fontSize: 11,
+                    bgColor: EntryStatic.colorSet.block.darken.HARDWARE,
+                    arrowColor: EntryStatic.colorSet.arrow.default.HARDWARE,
+                },
+                { type: 'Indicator', img: 'block_icon/hardware_icon.svg', size: 12 }
+            ],
             events: {},
             def: {
-                params: [null],
+                params: [null, null],
                 type: 'BigwaveRoboticsFomeHeadDown',
             },
-            paramsKeyMap: {},
+            paramsKeyMap: {
+                SYNC: 0
+            },
             class: 'command_head',
             isNotFor: ['BigwaveRoboticsFome'],
             func(sprite, script) {
-                0
-                const value = script.getNumberValue('VALUE');
+                const sync = (script.getNumberValue('SYNC') == 1);
                 const jsonBody = { "dataType": "COMMAND", "param": { "commandType": "HEAD_DOWN" } };
-                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody);
+                return Entry.BigwaveRoboticsBase.sendJson(script, jsonBody, sync);
             },
             syntax: {
                 js: [],

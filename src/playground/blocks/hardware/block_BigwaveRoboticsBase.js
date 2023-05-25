@@ -8,57 +8,11 @@
 Entry.BigwaveRoboticsBase =
 {
     /***************************************************************************************
-     *  시간 지연 함수
-     ***************************************************************************************/
-
-    // 시간 지연
-    checkFinish(script, ms) {
-        const _ms = this.fit(0, ms, 60000);
-
-        if (!script.isStart) {
-            script.isStart = true;
-            script.timeFlag = 1;
-
-            const fps = Entry.FPS || 60;
-            const timeValue = (60 / fps) * _ms;
-
-            setTimeout(() => {
-                script.timeFlag = 0;
-            }, timeValue);
-
-            return 'Start';
-        }
-        else if (script.timeFlag == 1) {
-            return 'Running';
-        }
-        else {
-            delete script.timeFlag;
-            delete script.isStart;
-            Entry.engine.isContinue = false;
-            return 'Finish';
-        }
-    },
-
-
-    /***************************************************************************************
      *  기능 함수
      ***************************************************************************************/
-
-    transferBufferClear() {
-        Entry.hw.sendQueue.bufferClear = 0;
-        Entry.hw.update();
-        delete Entry.hw.sendQueue.buffer_clear;
-    },
-
-
     fit(min, value, max) {
         return Math.max(Math.min(value, max), min);
     },
-
-
-    /***************************************************************************************
-     *  기능
-     ***************************************************************************************/
 
     // 데이터 읽기
     getData(device) {
@@ -66,35 +20,77 @@ Entry.BigwaveRoboticsBase =
     },
 
 
-
     /***************************************************************************************
      *  데이터 전송 함수 (Entry -> Hardware)
      ***************************************************************************************/
 
     // -- Message -----------------------------------------------------------------------------
-    sendJson(script, jsonBody, timeDelay = 32) {
-        switch (this.checkFinish(script, timeDelay)) {
+    sendJson(script, jsonBody, flagSync = false, timeOut = 60000) {
+        const motion = this.getData('motion');
+
+        if (!script.sequence) {
+            script.sequence = 'Start';
+        }
+
+        switch (script.sequence) {
             case 'Start':
                 {
-                    console.log(jsonBody);
+                    console.log('Block - Start');
+                    // 비동기 실행 시 32ms 후 바로 다음 블럭 실행
+                    if (flagSync == false) {
+                        timeOut = 32;
+                    }
 
-                    // 전송
-                    Entry.hw.sendQueue.jsonBody = jsonBody;
+                    const ms = this.fit(0, timeOut, 300000);
+                    const fps = Entry.FPS || 60;
+                    const timeValue = (60 / fps) * ms;
 
-                    Entry.hw.update();
+                    // 시간 초과 시 블럭 실행 종료
+                    setTimeout(() => {
+                        script.sequence = 'Finish';
+                    }, timeValue);
 
-                    delete Entry.hw.sendQueue.jsonBody;
+                    // 명령 전송
+                    {
+                        console.log(JSON.stringify(jsonBody));
+                        Entry.hw.sendQueue.jsonBody = jsonBody;
+                        Entry.hw.update();
+                        delete Entry.hw.sendQueue.jsonBody;
+                    }
+
+                    console.log('Block - CheckMotionStart');
+                    script.sequence = 'CheckMotionStart';
                 }
                 return script;
 
-            case 'Running':
+            case 'CheckMotionStart':
+                {
+                    if (flagSync &&
+                        motion !== undefined &&
+                        motion != 'Ready') {
+                        console.log('Block - CheckMotionFinish');
+                        script.sequence = 'CheckMotionFinish';
+                    }
+                }
                 return script;
 
-            case 'Finish':
-                return script.callReturn();
+            case 'CheckMotionFinish':
+                {
+                    if (flagSync &&
+                        motion !== undefined &&
+                        motion == 'Ready') {
+                        script.sequence = 'Finish';
+                    }
+                }
+                return script;
 
-            default:
-                return script.callReturn();
+            default: // 'Finish'
+                {
+                    console.log('Block - Finish');
+                    delete script.sequence;
+                    Entry.engine.isContinue = false;
+                    return script.callReturn();
+                }
         }
     }
 };
